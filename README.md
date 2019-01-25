@@ -1,4 +1,6 @@
-# Rummager
+# Search API
+
+**This is a fork of [rummager](https://github.com/alphagov/rummager), and is in a half-renamed state!  We will clean this up as the migration progresses.**
 
 Rummager indexes content into [elasticsearch](https://www.elastic.co/products/elasticsearch) and serves the GOV.UK search API.
 
@@ -96,7 +98,7 @@ this in the development VM, you need to run both of these commands:
     bundle exec rake jobs:work
 
     # to start the rummager webapp
-    bundle exec mr-sparkle --force-polling -- -p 3009
+    bundle exec mr-sparkle --force-polling -- -p 3233
 
 #### Publishing API integration
 Rummager subscribes to a RabbitMQ queue of updates from publishing-api. This still requires Sidekiq to be running.
