@@ -1,20 +1,20 @@
 ---
-base_path: "/news-and-communications"
-content_id: 622e9691-4b4f-4e9c-bce1-098b0c4f5ee2
+base_path: "/guidance-and-regulation"
+content_id: b8507038-e3b5-422c-bc51-28ff1ed12370
+signup_content_id: 30974a3c-b86d-4f12-883d-783e97055690
 document_type: finder
 locale: en
 publishing_app: rummager
 rendering_app: finder-frontend
 schema_name: finder
-title: News and communications
-description: Find news and communications from government
-signup_content_id: 54fa4dca-4dfb-40a5-b860-127716f02e75
+title: Guidance and regulation
+description: Find guidance and regulation from government
 details:
   document_noun: result
   filter:
     content_purpose_supergroup:
-    - news_and_communications
-  format_name: News or communications
+    - guidance_and_regulation
+  format_name: Guidance and regulation
   show_summaries: true
   sort:
   - name: Most viewed
@@ -27,15 +27,6 @@ details:
   - name: Updated (oldest)
     key: public_timestamp
   facets:
-  - key: related_to_brexit
-    filter_key: all_part_of_taxonomy_tree
-    filter_value: d6c2de5d-ef90-45d1-82d4-5f2438369eea
-    name: Show only Brexit results
-    short_name: Brexit
-    type: checkbox
-    display_as_result_metadata: false
-    filterable: true
-    preposition: about
   - key: "_unused"
     filter_key: all_part_of_taxonomy_tree
     keys:
@@ -47,12 +38,6 @@ details:
     display_as_result_metadata: false
     filterable: true
     preposition: about
-  - key: people
-    name: Person
-    preposition: from
-    type: text
-    display_as_result_metadata: false
-    filterable: true
   - key: organisations
     name: Organisation
     short_name: From
@@ -74,9 +59,9 @@ details:
     filterable: true
   default_documents_per_page: 20
 routes:
-- path: "/news-and-communications"
+- path: "/guidance-and-regulation"
   type: exact
-- path: "/news-and-communications.atom"
+- path: "/guidance-and-regulation.atom"
   type: exact
-- path: "/news-and-communications.json"
+- path: "/guidance-and-regulation.json"
   type: exact
