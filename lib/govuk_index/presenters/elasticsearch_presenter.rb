@@ -44,6 +44,8 @@ module GovukIndex
         document_type:                       type,
         eligible_entities:                   specialist.eligible_entities,
         email_document_supertype:            common_fields.email_document_supertype,
+        facet_values:                        expanded_links.facet_values,
+        facet_groups:                        expanded_links.facet_groups,
         first_published_at:                  specialist.first_published_at,
         format:                              common_fields.format,
         fund_state:                          specialist.fund_state,
