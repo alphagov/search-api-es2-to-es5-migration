@@ -19,11 +19,11 @@ DOCUMENT_FINDER_CONFIG=<finder-config-file-path> publishing_api:publish_document
 This rake task is used to present the Find EU Exit guidance for business finder to the
 publishing API:
 
- ```
+```
 publishing_api:publish_eu_exit_business_finder
 ```
 
- **Note:** Both rake tasks `publishing_api:publish_document_finder` and `publishing_api:publish_eu_exit_business_finder`
+**Note:** Both rake tasks `publishing_api:publish_document_finder` and `publishing_api:publish_eu_exit_business_finder`
 are to be deprecated.
 
 For new finder content items, use the rake task `publishing_api:publish_finder`. For example:

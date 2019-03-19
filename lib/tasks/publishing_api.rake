@@ -80,7 +80,8 @@ namespace :publishing_api do
 
   desc "
     Publish business readiness finder and email signup content items
-     Usage:
+
+    Usage:
     rake publishing_api:publish_eu_exit_business_finder
   "
   task :publish_eu_exit_business_finder do
