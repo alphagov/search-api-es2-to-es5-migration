@@ -16,6 +16,7 @@ gem "plek", "~> 2.1"
 gem "rack", "~> 2.0"
 gem "rack-logstasher", "~> 1.0.0"
 gem "rake", "~> 12.3"
+gem "redis", "~> 4.1.0"
 gem 'sidekiq-limit_fetch'
 gem "sinatra", "~> 2.0.5"
 gem "statsd-ruby", "~> 1.4.0"

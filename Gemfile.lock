@@ -278,6 +278,7 @@ DEPENDENCIES
   rack-test (~> 1.1.0)
   rainbow
   rake (~> 12.3)
+  redis (~> 4.1.0)
   rspec
   sidekiq-limit_fetch
   simplecov (~> 0.16.1)
