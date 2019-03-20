@@ -6,6 +6,11 @@ module GovukIndex
       @logger.level = :info
     end
 
+    # Load data to a new index and switch aliases.  There's strictly
+    # speaking a race condition here where a new index exists but the
+    # old index is writable, but as this method is only triggered by
+    # the 'bin/page_traffic_load' script, that's fine, just don't run
+    # two of them at once.
     def load_from(iostream)
       new_index = index_group.create_index
       @logger.info "Created index #{new_index.real_name}"
@@ -13,21 +18,17 @@ module GovukIndex
       old_index = index_group.current_real
       @logger.info "Old index #{old_index.real_name}"
 
-      old_index.with_lock do
-        @logger.info "Indexing to #{new_index.real_name}"
+      @logger.info "Indexing to #{new_index.real_name}"
 
-        in_even_sized_batches(iostream) do |lines|
-          GovukIndex::PageTrafficWorker.perform_async(lines, new_index.real_name)
-        end
-
-        GovukIndex::PageTrafficWorker.wait_until_processed
-        new_index.commit
-
-        # Switch aliases inside the lock so we avoid a race condition where a
-        # new index exists, but the old index is available for writes
-        index_group.switch_to(new_index)
-        old_index.close
+      in_even_sized_batches(iostream) do |lines|
+        GovukIndex::PageTrafficWorker.perform_async(lines, new_index.real_name)
       end
+
+      GovukIndex::PageTrafficWorker.wait_until_processed
+      new_index.commit
+
+      index_group.switch_to(new_index)
+      old_index.close
     end
 
   private

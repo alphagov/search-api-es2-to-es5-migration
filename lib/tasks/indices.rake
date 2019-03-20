@@ -59,20 +59,6 @@ namespace :rummager do
     index_group.switch_to(index) unless index_group.current_real
   end
 
-  desc "Lock the index for writes"
-  task :lock do
-    index_names.each do |index_name|
-      SearchConfig.instance.search_server.index(index_name).lock
-    end
-  end
-
-  desc "Unlock the index for writes"
-  task :unlock do
-    index_names.each do |index_name|
-      SearchConfig.instance.search_server.index(index_name).unlock
-    end
-  end
-
   desc "Sync unmigrated data into govuk
 
 While we are migrating data to govuk, it is important that govuk has
@@ -87,8 +73,8 @@ correctly
 
   desc "Update popularity data in indices.
 
-Update all data in the index inplace (without locks) with the new popularity
-data using sidekiq workers.
+Update all data in the index inplace with the new popularity data
+using sidekiq workers.
 
 This does not update the schema.
 "
@@ -100,7 +86,7 @@ This does not update the schema.
 
   desc "Update supertypes from govuk_document_types gem.
 
-Update all data in the index inplace (without locks) with supertypes from the
+Update all data in the index inplace with supertypes from the
 govuk_document_types gem using sidekiq workers.
 
 This does not update the schema.
@@ -113,32 +99,34 @@ This does not update the schema.
 
   desc "Migrate the data to a new schema definition
 
-Lock the current index, migrate all the data to a new index,
-wait for the process to complete, switch to the new index and
-release the lock.
+Migrate all the data to a new index, wait for the process to complete
+and switch to the new index.
 
 You should run this task if the index schema has changed.
 "
   task :migrate_schema do
     raise('Please set `CONFIRM_INDEX_MIGRATION_START` to run this task') unless ENV['CONFIRM_INDEX_MIGRATION_START']
 
-    failed_indices = []
+    changed_indices = []
 
     index_names.each do |index_name|
       SchemaMigrator.new(index_name, search_config) do |migrator|
         migrator.reindex
 
         if migrator.changed?
-          puts "Difference during reindex for: #{index_name}"
+          puts "Caution: difference during reindex for: #{index_name}"
           puts migrator.comparison.inspect
-          failed_indices << index_name
-        else
-          migrator.switch_to_new_index
+          changed_indices << index_name
         end
+
+        migrator.switch_to_new_index
       end
     end
 
-    raise "Failure during reindexing for: #{failed_indices.join(', ')}" if failed_indices.any?
+    if changed_indices.any?
+      puts "Changes during reindex for: #{changed_indices.join(', ')}"
+      puts "Re-play search updates to these indices to correct."
+    end
   end
 
   desc "Switches an index group to a new index WITHOUT transferring the data"

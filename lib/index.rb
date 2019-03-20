@@ -56,29 +56,6 @@ module SearchIndices
       @client.indices.close(index: @index_name)
     end
 
-    # Apply a write lock to this index, making it read-only
-    def lock
-      request_body = { "index" => { "blocks" => { "write" => true } } }
-      @client.indices.put_settings(index: @index_name, body: request_body)
-    end
-
-    # Remove any write lock applied to this index
-    def unlock
-      request_body = { "index" => { "blocks" => { "write" => false } } }
-      @client.indices.put_settings(index: @index_name, body: request_body)
-    end
-
-    def with_lock
-      logger.info "Locking #{@index_name}"
-      lock
-      begin
-        yield
-      ensure
-        logger.info "Unlocking #{@index_name}"
-        unlock
-      end
-    end
-
     def add(documents, options = {})
       logger.info "Adding #{documents.size} document(s) to #{index_name}"
 

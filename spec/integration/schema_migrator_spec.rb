@@ -53,7 +53,6 @@ RSpec.describe SchemaMigrator do
       SchemaMigrator.new("govuk_test", search_config, wait_between_task_list_check: 0.2, io: StringIO.new) do |migrator|
         migrator.reindex
 
-        search_server.index_group("govuk_test").current_real.unlock
         commit_document("govuk_test", { "link" => "/another-page" })
 
         expect(migrator).to be_changed
@@ -66,7 +65,6 @@ RSpec.describe SchemaMigrator do
       SchemaMigrator.new("govuk_test", search_config, wait_between_task_list_check: 0.2, io: StringIO.new) do |migrator|
         migrator.reindex
 
-        search_server.index_group("govuk_test").current_real.unlock
         client.delete(index: "govuk_test", id: "/a-page-to-be-reindexed", type: "generic-document", refresh: true)
 
         expect(migrator).to be_changed
@@ -82,7 +80,6 @@ RSpec.describe SchemaMigrator do
       SchemaMigrator.new("govuk_test", search_config, wait_between_task_list_check: 0.2, io: StringIO.new) do |migrator|
         migrator.reindex
 
-        search_server.index_group("govuk_test").current_real.unlock
         update_document(
           "govuk_test",
           { "link" => "/some-page", "title" => "New title" }

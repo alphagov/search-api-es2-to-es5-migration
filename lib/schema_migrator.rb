@@ -5,9 +5,7 @@ class SchemaMigrator
     @wait_between_task_list_check = wait_between_task_list_check
     @io = io
 
-    index_group.current.with_lock do
-      yield(self)
-    end
+    yield(self)
   end
 
   def reindex
