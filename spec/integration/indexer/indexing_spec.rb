@@ -133,17 +133,11 @@ RSpec.describe 'ElasticsearchIndexingTest' do
     expect_document_is_in_rummager(SAMPLE_DOCUMENT, index: "government_test")
   end
 
+  # rubocop:disable RSpec/AnyInstance
   context "when indexing to the metasearch index" do
     it "reschedules the job if the index has a write lock" do
-      stubbed_client = client
-
-      locked_response = { "items" => [
-        { "index" => { "error" => { "reason" => "[FORBIDDEN/metasearch/index write" } } }
-      ] }
-
-      expect(stubbed_client).to receive(:bulk).and_return(locked_response)
-      expect(stubbed_client).to receive(:bulk).and_call_original
-      allow_any_instance_of(SearchIndices::Index).to receive(:build_client).and_return(stubbed_client)
+      allow_any_instance_of(SearchIndices::Index).to receive(:locked?).and_return(true)
+      allow_any_instance_of(SearchIndices::Index).to receive(:locked?).and_call_original
 
       details = <<~DETAILS
         {\"best_bets\":[
@@ -174,15 +168,8 @@ RSpec.describe 'ElasticsearchIndexingTest' do
 
   context "when indexing content" do
     it "reschedules the job if the index has a write lock" do
-      stubbed_client = client
-
-      locked_response = { "items" => [
-        { "index" => { "error" => { "reason" => "[FORBIDDEN/metasearch/index write" } } }
-      ] }
-
-      expect(stubbed_client).to receive(:bulk).and_return(locked_response)
-      expect(stubbed_client).to receive(:bulk).and_call_original
-      allow_any_instance_of(SearchIndices::Index).to receive(:build_client).and_return(stubbed_client)
+      allow_any_instance_of(SearchIndices::Index).to receive(:locked?).and_return(true)
+      allow_any_instance_of(SearchIndices::Index).to receive(:locked?).and_call_original
 
       publishing_api_has_expanded_links(
         content_id: "6b965b82-2e33-4587-a70c-60204cbb3e29",
@@ -224,4 +211,5 @@ RSpec.describe 'ElasticsearchIndexingTest' do
       )
     end
   end
+  # rubocop:enable RSpec/AnyInstance
 end

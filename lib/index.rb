@@ -1,3 +1,5 @@
+require 'redis'
+
 module SearchIndices
   class IndexLocked < RuntimeError; end
 
@@ -56,16 +58,24 @@ module SearchIndices
       @client.indices.close(index: @index_name)
     end
 
-    # Apply a write lock to this index, making it read-only
+    # Record that the index is locked: AWS managed ES doesn't support
+    # locking, so emulate this with a key in Redis.
     def lock
-      request_body = { "index" => { "blocks" => { "write" => true } } }
-      @client.indices.put_settings(index: @index_name, body: request_body)
+      redis.set(redis_lock_key, redis_lock_token)
+      # small delay to prevent issue where one thread sees locked?
+      # false, another locks, and then the first thread writes to the
+      # index.
+      sleep(2.seconds)
     end
 
     # Remove any write lock applied to this index
     def unlock
-      request_body = { "index" => { "blocks" => { "write" => false } } }
-      @client.indices.put_settings(index: @index_name, body: request_body)
+      redis.del(redis_lock_key)
+    end
+
+    # check if the index is locked
+    def locked?
+      redis.get(redis_lock_key) == redis_lock_token
     end
 
     def with_lock
@@ -90,6 +100,8 @@ module SearchIndices
     # indexing-methods like `add` and `amend` eventually end up
     # calling this method.
     def bulk_index(document_hashes_or_payload, options = {})
+      raise IndexLocked if locked?
+
       @client = build_client(options.merge(retry_on_failure: true))
       payload_generator = Indexer::BulkPayloadGenerator.new(@index_name, @search_config, @client, @is_content_index)
       response = @client.bulk(index: @index_name, body: payload_generator.bulk_payload(document_hashes_or_payload))
@@ -101,19 +113,8 @@ module SearchIndices
       end
 
       if failed_items.any?
-        # Because bulk writes return a 200 status code regardless, we need to
-        # parse through the errors to detect responses that indicate a locked
-        # index
-        blocked_items = failed_items.select { |item|
-          error = (item["index"] || item["create"])["error"]
-          locked_index_error?(error["reason"])
-        }
-        if blocked_items.any?
-          raise IndexLocked
-        else
-          GovukError.notify(Indexer::BulkIndexFailure.new, extra: { failed_items: failed_items })
-          raise Indexer::BulkIndexFailure
-        end
+        GovukError.notify(Indexer::BulkIndexFailure.new, extra: { failed_items: failed_items })
+        raise Indexer::BulkIndexFailure
       end
 
       response
@@ -191,17 +192,13 @@ module SearchIndices
     end
 
     def delete(id)
+      raise IndexLocked if locked?
+
       begin
         @client.delete(index: @index_name, type: 'generic-document', id: id)
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         # We are fine with trying to delete deleted documents.
         true
-      rescue Elasticsearch::Transport::Transport::Errors::Forbidden => e
-        if locked_index_error?(e.message)
-          raise IndexLocked
-        else
-          raise
-        end
       end
 
       true # For consistency with the Solr API and simple_json_response
@@ -233,12 +230,19 @@ module SearchIndices
 
   private
 
-    # Parse an elasticsearch error message to determine whether it's caused by
-    # a write-locked index. An example write-lock error message:
-    #
-    #     "ClusterBlockException[blocked by: [FORBIDDEN/8/index write (api)];]"
-    def locked_index_error?(error_message)
-      error_message =~ %r{\[FORBIDDEN/[^/]+/index write}
+    def redis_lock_key
+      "search-api-#{@index_name}-locked"
+    end
+
+    def redis_lock_token
+      "locked"
+    end
+
+    def redis
+      @redis ||= Redis.new(
+        host: ENV.fetch("REDIS_HOST", "127.0.0.1"),
+        port: ENV.fetch("REDIS_PORT", 6379)
+      )
     end
 
     def logger
