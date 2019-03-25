@@ -1,5 +1,5 @@
 ---
-base_path: "/search/statistics"
+base_path: "/search/research-and-statistics"
 content_id: 8f827d53-9ad1-4b90-b6ae-2301c1ecdf02
 description: Find statistics from government
 document_type: finder
@@ -10,7 +10,7 @@ schema_name: finder
 signup_content_id: 119db584-0ae7-45e4-8f3a-fd79316c6921
 title: Statistics
 details:
-  document_noun: statistic
+  document_noun: result
   filter: {}
   format_name: statistic
   show_summaries: true
@@ -115,14 +115,15 @@ details:
   - key: public_timestamp
     short_name: Updated
     name: Updated
+    preposition: Updated
     type: date
     display_as_result_metadata: true
     filterable: true
   default_documents_per_page: 20
 routes:
-- path: "/search/statistics"
+- path: "/search/research-and-statistics"
   type: exact
-- path: "/search/statistics.atom"
+- path: "/search/research-and-statistics.atom"
   type: exact
-- path: "/search/statistics.json"
+- path: "/search/research-and-statistics.json"
   type: exact

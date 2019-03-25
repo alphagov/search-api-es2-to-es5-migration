@@ -1,13 +1,13 @@
 ---
-base_path: "/search/statistics/email-signup"
+base_path: "/search/research-and-statistics/email-signup"
 content_id: 119db584-0ae7-45e4-8f3a-fd79316c6921
 document_type: finder_email_signup
 locale: en
 publishing_app: rummager
 rendering_app: finder-frontend
 schema_name: finder_email_signup
-title: Statistics
-description: You'll get an email each time statistics are published.
+title: Research and statistics
+description: You'll get an email each time content is published.
 details:
   email_filter_by:
   email_filter_name:
@@ -41,5 +41,5 @@ details:
     filter_key: all_part_of_taxonomy_tree
     facet_name: topics
 routes:
-- path: "/search/statistics/email-signup"
+- path: "/search/research-and-statistics/email-signup"
   type: exact
