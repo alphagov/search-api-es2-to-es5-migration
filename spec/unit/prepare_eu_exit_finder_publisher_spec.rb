@@ -51,7 +51,7 @@ RSpec.describe PrepareEuExitFinderPublisher do
         "locale" => "en",
         "phase" => "live",
         "public_updated_at" => "2018-12-07T17:19:35+00:00",
-        "publishing_app" => "search-api",
+        "publishing_app" => "rummager",
         "rendering_app" => "finder-frontend",
         "routes" => [
           { "path" => "/prepare-eu-exit/seaside-fun", "type" => "exact" },
