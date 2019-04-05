@@ -1,8 +1,10 @@
 module ContentItemPublisher
   class FinderPresenter < ContentItemPresenter
     def present_links
-      links = { "email_alert_signup" => email_alert_signup,
-               "parent" => content_item_parent }
+      links = {
+        "email_alert_signup" => email_alert_signup,
+        "parent" => content_item_parent
+      }.merge(facet_group)
 
       { content_id: content_id, links: links }
     end
@@ -14,6 +16,11 @@ module ContentItemPublisher
 
     def content_item_parent
       Array(content_item["parent"])
+    end
+
+    def facet_group
+      facet_group = content_item.dig("links", "facet_group")
+      facet_group ? { "facet_group" => facet_group } : {}
     end
   end
 end
