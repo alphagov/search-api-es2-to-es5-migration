@@ -1,8 +1,8 @@
 source "https://rubygems.org"
 
 gem "activesupport", "~> 5.2.3"
-gem "elasticsearch", "~> 5"
-gem "gds-api-adapters", "~> 57.4"
+gem "elasticsearch", "~> 2"
+gem "gds-api-adapters", "~> 59.0"
 gem "govuk_app_config", "~> 1.14.0"
 gem "govuk_document_types", "~> 0.9.0"
 gem "govuk-lint", "~> 3.11.0"
@@ -14,7 +14,7 @@ gem "oauth2"
 gem "nokogiri", "~> 1.10.2"
 gem "plek", "~> 2.1"
 gem "rack", "~> 2.0"
-gem "rack-logstasher", "~> 1.0.0"
+gem "rack-logstasher", "~> 1.0.1"
 gem "rake", "~> 12.3"
 gem 'sidekiq-limit_fetch'
 gem "sinatra", "~> 2.0.5"
@@ -27,7 +27,7 @@ gem "whenever", "~> 0.10.0"
 if ENV["MESSAGE_QUEUE_CONSUMER_DEV"]
   gem "govuk_message_queue_consumer", path: "../govuk_message_queue_consumer"
 else
-  gem "govuk_message_queue_consumer", "~> 3.2.1"
+  gem "govuk_message_queue_consumer", "~> 3.3.0"
 end
 
 group :test do
