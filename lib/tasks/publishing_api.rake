@@ -1,5 +1,4 @@
 require "publishing_api_finder_publisher"
-require "prepare_eu_exit_finder_publisher"
 
 namespace :publishing_api do
   desc "Publish special routes such as sitemaps"
@@ -141,6 +140,30 @@ namespace :publishing_api do
     puts "FINISHED"
   end
 
+  desc "
+    Publish business readiness finder with a facet_group and email signup content items
+
+    Usage:
+    rake publishing_api:publish_facet_group_eu_exit_business_finder
+  "
+  task :publish_facet_group_eu_exit_business_finder do
+    finder_config = File.join(Dir.pwd, "config", "find-eu-exit-guidance-business.yml")
+    email_signup_config = File.join(Dir.pwd, "config", "find-eu-exit-guidance-business-email-signup.yml")
+
+    timestamp = Time.now.iso8601
+
+    unless email_signup_config.nil?
+      email_signup = YAML.load_file(email_signup_config.to_s)
+      ContentItemPublisher::FinderEmailSignupPublisher.new(email_signup, timestamp).call
+    end
+
+    unless finder_config.nil?
+      finder = YAML.load_file(finder_config.to_s)
+      ContentItemPublisher::FacetGroupFinderPublisher.new(finder, timestamp).call
+    end
+    puts "FINISHED"
+  end
+
   desc "Unpublish document finder."
   task :unpublish_document_finder do
     document_finder_config = ENV["DOCUMENT_FINDER_CONFIG"]
@@ -153,23 +176,5 @@ namespace :publishing_api do
 
     Services.publishing_api.unpublish(finder["content_id"], "gone")
     Services.publishing_api.unpublish(finder["signup_content_id"], "gone")
-  end
-
-  desc "Publish Prepare EU Exit finders"
-  task :publish_prepare_eu_exit_finders do
-    config = YAML.safe_load(ERB.new(File.read("config/prepare-eu-exit.yml.erb")).result_with_hash(config: {}))
-
-    PrepareEuExitFinderPublisher.new(config["topics"], Time.now.iso8601).call
-  end
-
-  desc "Unpublish Prepare EU Exit finders"
-  task :unpublish_prepare_eu_exit_finders do
-    config = YAML.safe_load(ERB.new(File.read("config/prepare-eu-exit.yml.erb")).result_with_hash(config: {}))
-
-    config["topics"].each do |topic|
-      puts "Unpublishing #{topic['slug']}"
-      Services.publishing_api.unpublish(topic["finder_content_id"], type: "gone")
-    end
-    puts "Finished"
   end
 end
